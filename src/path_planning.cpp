@@ -5,6 +5,7 @@ path_planning::path_planning()
 {
     lane = 1;
     ref_vel=49.5;
+    vehicle_in_front=false;
 }
 //----------------------------------------------------------------
 path_planning::~path_planning()
@@ -15,6 +16,7 @@ path_planning::~path_planning()
 void path_planning::estimate_ref_velocity(std::vector<std::vector<double>> sensor_fusion,double car_s, int prev_size)
 {
     bool vehicle_in_front=false;
+    float speed_reduction=0.5;
     for ( int i = 0; i < sensor_fusion.size(); i++ ) 
     {
         float d = sensor_fusion[i][6];
@@ -28,11 +30,12 @@ void path_planning::estimate_ref_velocity(std::vector<std::vector<double>> senso
             //printf("Car In front of us before s: %lf\n",check_car_s);
             check_car_s+=((double)prev_size*0.02*check_speed);
             //printf("Car In front of us after s: %lf\n",check_car_s);
-            if ((check_car_s>car_s) && ((check_car_s-car_s)<40))
+            double diff_s = check_car_s-car_s;
+            if ((check_car_s>car_s) && (diff_s<40))
             {
                 if (check_speed<MAX_SPEED)
                 {
-                    ref_vel=ref_vel -0.5;//check_speed;
+                    ref_vel=ref_vel - speed_reduction;//check_speed;
                     if (ref_vel<check_speed)
                     {
                         ref_vel = check_speed;

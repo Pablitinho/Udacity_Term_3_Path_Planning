@@ -22,5 +22,5 @@ private:
 
 int lane;
 double ref_vel;
-
+bool vehicle_in_front;
 };
