@@ -97,6 +97,19 @@ int main() {
           //   of the road.
           auto sensor_fusion = j[1]["sensor_fusion"];
 
+		
+          vector<vector<double>> v_sensor_fusion;
+              
+          for (int i = 0; i < sensor_fusion.size(); i++)
+          {
+            vector<double> v_vector;
+            for (int id = 0; id < 7; id++)
+            {
+              v_vector.push_back((double)sensor_fusion[i][id]);
+            }	
+            v_sensor_fusion.push_back(v_vector);
+          }
+		 // double v = v_sensor_fusion[0][1];
           json msgJson;
 
           vector<double> next_x_vals;
@@ -144,7 +157,7 @@ int main() {
               ptsy.push_back(ref_y_prev);
               ptsy.push_back(ref_y);
           }
-          std::cout<<"Lane: "<< vehicle_path.get_current_lane()<< std::endl;
+          //std::cout<<"Lane: "<< vehicle_path.get_current_lane()<< std::endl;
 
           // Set 3 points with a distance of 30 meters each.
           vector<double> next_wp0 = getXY(car_s + 30, (2 + 4)*vehicle_path.get_current_lane(), map_waypoints_s, map_waypoints_x, map_waypoints_y);
@@ -180,25 +193,24 @@ int main() {
             next_y_vals.push_back(previous_path_y[i]);
           }
 
+          // Set the ref_speed regarding to the vehicle that we have in front of us
+          vehicle_path.estimate_ref_velocity(v_sensor_fusion,car_s,prev_size);
+
           // Calculate distance y position on 30 m ahead.
           double target_x = 30.0;
           double target_y = s(target_x);
-          std::cout<<"target_y: "<<target_y<<std::endl;
+           
           double target_dist = sqrt(target_x*target_x + target_y*target_y);
-          std::cout<<"target_dist: "<<target_dist<<std::endl;     
+          
 
           double x_add_on = 0;
 
           for( int i = 1; i < 50 - prev_size; i++ ) 
           {
-              double N = (target_dist/(.02*ref_vel/2.24));
+              double N = (target_dist/(.02*vehicle_path.get_ref_velocity()/2.24));
               
-              std::cout<<"N: "<<N<<" i: "<<i<<std::endl;
               double x_point = x_add_on + (target_x) / N;
-              std::cout<<"x_point: "<<x_point<<"i: "<<i<<std::endl;
-
               double y_point = s(x_point);
-              std::cout<<"y_point: "<<y_point<<"i: "<<i<<std::endl;
 
               x_add_on = x_point;
 
@@ -215,38 +227,8 @@ int main() {
               next_x_vals.push_back(x_point);
               next_y_vals.push_back(y_point);
 
-          /*ref_vel += speed_diff;
-          if ( ref_vel > MAX_SPEED ) {
-            ref_vel = MAX_SPEED;
-          } else if ( ref_vel < MAX_ACC ) {
-            ref_vel = MAX_ACC;
-            */
           }
-          // Making coordinates to local car coordinates.
-          /*for ( int i = 0; i < ptsx.size(); i++ ) 
-          {
-            double shift_x = ptsx[i] - ref_x;
-            double shift_y = ptsy[i] - ref_y;
-
-            ptsx[i] = shift_x * cos(0.0 - ref_yaw) - shift_y * sin(0.0 - ref_yaw);
-            ptsy[i] = shift_x * sin(0.0 - ref_yaw) + shift_y * cos(0.0 - ref_yaw);
-          }
-
-          double dist_inc = 0.35;
-          for (int inc = 0; inc < 50; ++inc) 
-          {
-            double next_s = car_s+(inc+1)*dist_inc;
-            double next_d = 6;
-
-            std::vector<double> coord = getXY(next_s,next_d, map_waypoints_s,map_waypoints_x,map_waypoints_y);
-
-            next_x_vals.push_back(coord[0]);
-            next_y_vals.push_back(coord[1]);
-
-           // next_x_vals.push_back(car_x+(dist_inc*inc)*cos(deg2rad(car_yaw)));
-           // next_y_vals.push_back(car_y+(dist_inc*inc)*sin(deg2rad(car_yaw)));
-          }
-          */
+          
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
 
