@@ -140,6 +140,8 @@ that's just a guess.
 One last note here: regardless of the IDE used, every submitted project must
 still be compilable with cmake and make./
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+## Reflexion
+
+When generating the path with the spline is better to increase the values to smooth the path. 
+The logic was developed in order to have a safe driving and dont produce accident or dangerous maniouver.
 
