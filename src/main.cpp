@@ -57,9 +57,9 @@ int main() {
   }
   
   path_planning vehicle_path;
-  double ref_vel=49.5;
+  //double ref_vel=9.5;
 
-  h.onMessage([&ref_vel, &vehicle_path,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
+  h.onMessage([&vehicle_path,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
                &map_waypoints_dx,&map_waypoints_dy]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                uWS::OpCode opCode) {
@@ -121,7 +121,13 @@ int main() {
            */
           
           int prev_size = previous_path_x.size();
-
+          /*if (prev_size>0)
+          {
+              car_s=end_path_s;
+          } */           
+          // Set the ref_speed regarding to the vehicle that we have in front of us
+          vehicle_path.estimate_ref_velocity(sensor_fusion,car_s,car_d,car_yaw,prev_size,car_speed);
+          
           vector<double> ptsx;
           vector<double> ptsy;
 
@@ -160,9 +166,9 @@ int main() {
           //std::cout<<"Lane: "<< vehicle_path.get_current_lane()<< std::endl;
 
           // Set 3 points with a distance of 30 meters each.
-          vector<double> next_wp0 = getXY(car_s + 30, (2 + 4)*vehicle_path.get_current_lane(), map_waypoints_s, map_waypoints_x, map_waypoints_y);
-          vector<double> next_wp1 = getXY(car_s + 60, (2 + 4)*vehicle_path.get_current_lane(), map_waypoints_s, map_waypoints_x, map_waypoints_y);
-          vector<double> next_wp2 = getXY(car_s + 90, (2 + 4)*vehicle_path.get_current_lane(), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+          vector<double> next_wp0 = getXY(car_s + 50, (2 + 4*vehicle_path.get_current_lane()), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+          vector<double> next_wp1 = getXY(car_s + 100, (2 + 4*vehicle_path.get_current_lane()), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+          vector<double> next_wp2 = getXY(car_s + 150, (2 + 4*vehicle_path.get_current_lane()), map_waypoints_s, map_waypoints_x, map_waypoints_y);
 
           ptsx.push_back(next_wp0[0]);
           ptsx.push_back(next_wp1[0]);
@@ -193,11 +199,8 @@ int main() {
             next_y_vals.push_back(previous_path_y[i]);
           }
 
-          // Set the ref_speed regarding to the vehicle that we have in front of us
-          vehicle_path.estimate_ref_velocity(v_sensor_fusion,car_s,prev_size);
-
           // Calculate distance y position on 30 m ahead.
-          double target_x = 30.0;
+          double target_x = 40.0;
           double target_y = s(target_x);
            
           double target_dist = sqrt(target_x*target_x + target_y*target_y);
