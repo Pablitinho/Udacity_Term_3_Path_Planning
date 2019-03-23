@@ -97,19 +97,6 @@ int main() {
           //   of the road.
           auto sensor_fusion = j[1]["sensor_fusion"];
 
-		
-          vector<vector<double>> v_sensor_fusion;
-              
-          for (int i = 0; i < sensor_fusion.size(); i++)
-          {
-            vector<double> v_vector;
-            for (int id = 0; id < 7; id++)
-            {
-              v_vector.push_back((double)sensor_fusion[i][id]);
-            }	
-            v_sensor_fusion.push_back(v_vector);
-          }
-		 // double v = v_sensor_fusion[0][1];
           json msgJson;
 
           vector<double> next_x_vals;
@@ -121,12 +108,16 @@ int main() {
            */
           
           int prev_size = previous_path_x.size();
-          /*if (prev_size>0)
+          // Take previous position
+          if (prev_size > 2)
           {
-              car_s=end_path_s;
-          } */           
+              car_s = end_path_s;
+              car_d = end_path_d;
+          }
+
           // Set the ref_speed regarding to the vehicle that we have in front of us
           vehicle_path.estimate_ref_velocity(sensor_fusion,car_s,car_d,car_yaw,prev_size,car_speed);
+
           
           vector<double> ptsx;
           vector<double> ptsy;
@@ -136,7 +127,8 @@ int main() {
           double ref_yaw = deg2rad(car_yaw);
 
           // Using the starting reference
-          if ( prev_size < 2 ) {
+          if ( prev_size < 2 ) 
+          {
               // make the path tanget to the car
               double prev_car_x = car_x - cos(car_yaw);
               double prev_car_y = car_y - sin(car_yaw);
@@ -200,19 +192,43 @@ int main() {
           }
 
           // Calculate distance y position on 30 m ahead.
-          double target_x = 40.0;
+          double target_x = 30.0;
           double target_y = s(target_x);
            
           double target_dist = sqrt(target_x*target_x + target_y*target_y);
           
 
           double x_add_on = 0;
+          double prev_v = 0.02*car_speed/2.24; // in meters
+          double accel = 0.0003*vehicle_path.get_acceleration();//
+          //double total_x = 0;
 
           for( int i = 1; i < 50 - prev_size; i++ ) 
           {
               double N = (target_dist/(.02*vehicle_path.get_ref_velocity()/2.24));
-              
-              double x_point = x_add_on + (target_x) / N;
+              double target_v = target_x/N;//
+
+              double x_point = x_add_on + target_v;
+              //total_x = x_point;
+
+              //double x_point = x_add_on + (target_x) / N;
+
+              //NEW
+              /*if (abs(prev_v - target_v) > 0.01) 
+              {
+                 x_point += accel;
+                 prev_v += accel;
+              } 
+              else 
+              {
+                prev_v = target_v;
+              }
+              // ENFORCE SPEED LIMIT (fixes acceleration bug caused by lane change)
+              if (prev_v > 0.435) 
+              {
+                prev_v = 0.435;
+              }*/
+              // END NEW
               double y_point = s(x_point);
 
               x_add_on = x_point;
