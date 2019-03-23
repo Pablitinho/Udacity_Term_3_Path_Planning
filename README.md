@@ -136,12 +136,18 @@ before. I believe the best way to handle this would be to keep them out of the
 repo root to avoid clutter. My expectation is that most profiles will include
 instructions to copy files to a new location to get picked up by the IDE, but
 that's just a guess.
-
+ac
 One last note here: regardless of the IDE used, every submitted project must
 still be compilable with cmake and make./
 
 ## Reflexion
 
-When generating the path with the spline is better to increase the values to smooth the path. 
+When generating the path with the spline is abetter to increase the values to smooth the path. 
 The logic was developed in order to have a safe driving and dont produce accident or dangerous maniouver.
+As improvement it could be nice use the TTC (Time to Contant) to change the logic, this will be more realistic 
+and also adapt the spline when we have a car in front of us. It is a pity the bad documentation of this simulator 
+because It is not possible to know the units of the data provided in the sensor fusion. 
+Path planning is a complex task even getting perfect information from the sensors, but there is like some kind of ethic behaviour  
+in the path planning. One example is if we have a pedestrian in front of us and we use a path that involve us into an accident.
+In this case, what path should we use??? The one that save us or the one that save the pedestrian.   
 
